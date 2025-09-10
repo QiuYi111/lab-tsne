@@ -11,8 +11,14 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     && rm -rf /var/lib/apt/lists/*
 
 WORKDIR /app
+# 放在 Dockerfile 里 requirements 安装之前
+RUN mkdir -p /root/.pip && \
+    echo "[global]\n\
+index-url = https://pypi.tuna.tsinghua.edu.cn/simple\n\
+trusted-host = pypi.tuna.tsinghua.edu.cn\n" \
+    > /root/.pip/pip.conf
 
-COPY docker/requirements.txt /tmp/requirements.txt
+    COPY docker/requirements.txt /tmp/requirements.txt
 RUN pip install --no-cache-dir -r /tmp/requirements.txt
 
 COPY pyproject.toml ./
