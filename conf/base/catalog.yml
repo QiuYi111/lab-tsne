@@ -1,5 +1,5 @@
 raw_partitioned:
-  type: PartitionedDataSet
+  type: partitions.PartitionedDataset
   path: /data/incoming
   dataset:
     type: pandas.CSVDataset

@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 from typing import Dict
-
+import os
 import numpy as np
 import pandas as pd
 from loguru import logger
@@ -9,26 +9,39 @@ from sklearn.manifold import TSNE
 from sklearn.preprocessing import StandardScaler
 
 
-def load_and_concat(partitions: Dict[str, pd.DataFrame]) -> pd.DataFrame:
-    """Concatenate partitions from a ``PartitionedDataSet`` into a single DataFrame.
+# src/lab_tsne/pipelines/tsne/nodes.py 里的 load_and_concat
 
-    Accepts CSV/Parquet partitions with at least 20 numeric columns. Non-numeric
-    auxiliary columns are allowed and will be dropped during preprocessing.
-    """
+def load_and_concat(partitions: dict) -> pd.DataFrame:
     if not partitions:
-        logger.warning("No files found in incoming dataset. Skipping.")
+        logger.warning("No files in /data/incoming. Skipping.")
         return pd.DataFrame()
 
     frames = []
-    for name, df in partitions.items():
+    for name, part in partitions.items():
+        # 1) 懒加载：callable -> 真正的数据
+        if callable(part):
+            part = part()
+
+        # 2) 路径字符串 -> 手动读（兜底，避免奇葩情况）
+        if isinstance(part, (str, bytes, os.PathLike)):
+            if str(part).lower().endswith(".csv"):
+                df = pd.read_csv(part)
+            elif str(part).lower().endswith(".parquet"):
+                df = pd.read_parquet(part)
+            else:
+                raise ValueError(f"Unknown file type for partition {name}: {part}")
+        else:
+            df = part
+
         if not isinstance(df, pd.DataFrame):
             df = pd.DataFrame(df)
-        frames.append(df)
+
         logger.info(f"Loaded partition: {name} shape={df.shape}")
+        frames.append(df)
+
     data = pd.concat(frames, ignore_index=True)
     logger.info(f"Concatenated shape={data.shape}")
     return data
-
 
 def preprocess(df: pd.DataFrame, standardize: bool = True) -> pd.DataFrame:
     if df.empty:
@@ -57,7 +70,7 @@ def run_tsne(df: pd.DataFrame, params: dict) -> pd.DataFrame:
         learning_rate=params.get("learning_rate", "auto"),
         init=params.get("init", "pca"),
         random_state=int(params.get("random_state", 42)),
-        n_iter=int(params.get("max_iter", 1000)),
+        max_iter=int(params.get("max_iter", 1000)),
         verbose=1,
     )
     emb = tsne.fit_transform(df.values)
