@@ -1,0 +1,29 @@
+raw_partitioned:
+  type: PartitionedDataSet
+  path: /data/incoming
+  dataset:
+    type: pandas.CSVDataset
+    load_args:
+      dtype: float64
+      header: infer
+      encoding: utf-8
+
+preprocessed_data:
+  type: pandas.ParquetDataset
+  filepath: /data/processed/preprocessed.parquet
+
+embedding_2d:
+  type: pandas.ParquetDataset
+  filepath: /data/processed/embedding_2d.parquet
+
+tsne_plot_png:
+  type: matplotlib.MatplotlibWriter
+  filepath: /data/reports/tsne.png
+  save_args:
+    format: png
+
+tsne_plot_svg:
+  type: matplotlib.MatplotlibWriter
+  filepath: /data/reports/tsne.svg
+  save_args:
+    format: svg

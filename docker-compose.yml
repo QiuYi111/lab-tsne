@@ -1,0 +1,17 @@
+version: "3.9"
+services:
+  lab-tsne:
+    build:
+      context: .
+      dockerfile: docker/Dockerfile
+    image: lab-tsne:latest
+    environment:
+      - KEDRO_ENV=base
+    volumes:
+      - ./conf:/app/conf:ro
+      - ./src:/app/src:ro
+      - /data/incoming:/data/incoming
+      - /data/processed:/data/processed
+      - /data/reports:/data/reports
+    restart: unless-stopped
+
