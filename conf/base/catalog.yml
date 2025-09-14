@@ -1,6 +1,6 @@
 raw_partitioned:
   type: partitions.PartitionedDataset
-  path: /data/incoming
+  path: /Users/jingyi/lab-tsne/data/01_raw
   dataset:
     type: pandas.CSVDataset
     load_args:

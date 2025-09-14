@@ -9,7 +9,7 @@ from watchdog.events import FileSystemEventHandler
 from watchdog.observers import Observer
 
 
-INCOMING = Path("/data/incoming")
+INCOMING = Path("/home/jingyi/data/incoming")
 
 
 def run_kedro():

@@ -1,0 +1,25 @@
+python - <<'PY'
+import numpy as np, pandas as pd
+from pathlib import Path
+
+Path('/Users/jingyi/lab-tsne/data/01_raw').mkdir(parents=True, exist_ok=True)
+
+# 三个高斯簇，每簇中心在 20 维空间不同坐标
+centers = [
+    np.zeros(20),
+    np.ones(20) * 5,
+    np.concatenate([np.ones(10) * -4, np.ones(10) * 3])
+]
+rows = []
+for c in centers:
+    x = np.random.randn(300, 20) * 0.8 + c
+    rows.append(x)
+
+X = np.vstack(rows)
+cols = [f"f{i:02d}" for i in range(20)]
+df = pd.DataFrame(X, columns=cols)
+
+out_path = Path('/Users/jingyi/lab-tsne/data/01_raw/demo_batch.csv')
+df.to_csv(out_path, index=False)
+print(f'Wrote {out_path}')
+PY
